@@ -22,7 +22,7 @@ export async function mintNft(toAddress: string) {
     const { request }: any = await publicClient.simulateContract({
       account,
       address: contractAddress,
-      abi: contractAbi.output.abi,
+      abi: contractAbi.abi,
       functionName: "mint",
       args: [toAddress, 0, 1, `0x`],
     });
@@ -38,7 +38,7 @@ export async function balanceOf(address: string) {
   try {
     const balanceData = await publicClient.readContract({
       address: contractAddress,
-      abi: contractAbi.output.abi,
+      abi: contractAbi.abi,
       functionName: "balanceOf",
       args: [address as `0x`, 0]
     });
