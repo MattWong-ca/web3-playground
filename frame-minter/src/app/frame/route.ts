@@ -13,8 +13,8 @@ export async function GET(req: NextRequest, res: NextResponse) {
     const frameMetadata = await fdk.getFrameMetadata({
       post_url: `${process.env.BASE_URL}/frame`,
       buttons: [{ label: "Mint NFT", action: "post" }],
-      aspect_ratio: "1:1",
-      cid: "QmSYN7KT847Nado3fxFafYZgG6NXTMZwbaMvU9jhu5nPmJ",
+      aspect_ratio: "1.91:1",
+      cid: "QmeWrbS3H8UkQyNHavjauLF17gox1jD7bokRTCWbfwvnZD",
     });
     return new NextResponse(frameMetadata);
   } catch (error) {
@@ -36,8 +36,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       const frameMetadata = await fdk.getFrameMetadata({
         post_url: `${process.env.BASE_URL}/redirect`,
         buttons: [{ label: "Learn How to Make This", action: "post_redirect" }],
-        aspect_ratio: "1:1",
-        cid: "QmUx3kQH4vR2t7mTmW3jHJgJgJGxjoBsMxt6z1fkZEHyHJ",
+        aspect_ratio: "1.91:1",
+        cid: "QmeWrbS3H8UkQyNHavjauLF17gox1jD7bokRTCWbfwvnZD",
       });
       return new NextResponse(frameMetadata);
     } catch (error) {
@@ -48,8 +48,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const frameMetadata = await fdk.getFrameMetadata({
       post_url: `${process.env.BASE_URL}/redirect`,
       buttons: [{ label: "Learn How to Make This", action: "post_redirect" }],
-      aspect_ratio: "1:1",
-      cid: "QmaaEbtsetwamJwfFPAQAFC6FAE1xeYsvF7EBKA8NYMjP2",
+      aspect_ratio: "1.91:1",
+      cid: "QmeWrbS3H8UkQyNHavjauLF17gox1jD7bokRTCWbfwvnZD",
     });
     return new NextResponse(frameMetadata);
   }
