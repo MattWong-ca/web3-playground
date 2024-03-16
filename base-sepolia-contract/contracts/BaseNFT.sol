@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -14,9 +14,7 @@ contract BaseNFT is ERC721URIStorage, Ownable {
     uint256 public MINT_PRICE = 0.01 ether;
 
     // We need to pass the name of our NFTs token and its symbol.
-    constructor(
-        address initialOwner
-    ) ERC721("Base NFT for frames", "BASE") Ownable(initialOwner) {
+    constructor() ERC721("Base NFT for frames", "BASE") {
         console.log("Please work!");
     }
 
@@ -37,7 +35,7 @@ contract BaseNFT is ERC721URIStorage, Ownable {
         // Return the NFT's metadata
         _setTokenURI(
             newTicketId,
-            "ipfs://QmWNff6ke3f9nbrLdWrD12aWMcJ2fqB1w4LpFJSPG1r63a"
+            "ipfs://QmdfN2FMJSisBBprxG6QJUVR3spvXhuY68uNCuP3GKd5cX"
         );
 
         // Increment counter when next NFT ticket is minted

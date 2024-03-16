@@ -1,6 +1,6 @@
 const main = async () => {
   const nftContractFactory = await hre.ethers.getContractFactory("BaseNFT");
-  const nftContract = await nftContractFactory.deploy({ gasLimit: 3000000 });
+  const nftContract = await nftContractFactory.deploy();
   await nftContract.waitForDeployment();
   console.log("Contract deployed to:", await nftContract.getAddress());
 
