@@ -59,4 +59,22 @@ contract ChatGpt {
 
         return currentId;
     }
+
+    function addMessage(string memory message, uint runId) public {
+        ChatRun storage run = chatRuns[runId];
+        require(
+            keccak256(
+                abi.encodePacked(run.messages[run.messagesCount - 1].role)
+            ) == keccak256(abi.encodePacked("assistant")),
+            "No response to previous message"
+        );
+        require(run.owner == msg.sender, "Only chat owner can add messages");
+
+        Message memory newMessage;
+        newMessage.content = message;
+        newMessage.role = "user";
+        run.messages.push(newMessage);
+        run.messagesCount++;
+        IOracle(oracleAddress).createLlmCall(runId);
+    }
 }
