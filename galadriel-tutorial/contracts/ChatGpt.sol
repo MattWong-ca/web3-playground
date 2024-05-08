@@ -30,6 +30,11 @@ contract ChatGpt {
         _;
     }
 
+    modifier onlyOracle() {
+        require(msg.sender == oracleAddress, "Caller is not oracle");
+        _;
+    }
+
     event OracleAddressUpdated(address indexed newOracleAddress);
 
     function setOracleAddress(address newOracleAddress) public onlyOwner {
@@ -41,6 +46,7 @@ contract ChatGpt {
     mapping(uint => ChatRun) public chatRuns;
     uint private chatRunsCount;
 
+    // Run this first to start the chat
     function startChat(string memory message) public returns (uint i) {
         ChatRun storage run = chatRuns[chatRunsCount];
 
@@ -76,5 +82,48 @@ contract ChatGpt {
         run.messages.push(newMessage);
         run.messagesCount++;
         IOracle(oracleAddress).createLlmCall(runId);
+    }
+
+    function getMessageHistoryContents(
+        uint chatId
+    ) public view returns (string[] memory) {
+        string[] memory messages = new string[](
+            chatRuns[chatId].messages.length
+        );
+        for (uint i = 0; i < chatRuns[chatId].messages.length; i++) {
+            messages[i] = chatRuns[chatId].messages[i].content;
+        }
+        return messages;
+    }
+
+    function getMessageHistoryRoles(
+        uint chatId
+    ) public view returns (string[] memory) {
+        string[] memory roles = new string[](chatRuns[chatId].messages.length);
+        for (uint i = 0; i < chatRuns[chatId].messages.length; i++) {
+            roles[i] = chatRuns[chatId].messages[i].role;
+        }
+        return roles;
+    }
+
+    // This is where we get AI response from??
+    function onOracleLlmResponse(
+        uint runId,
+        string memory response,
+        string memory errorMessage
+    ) public onlyOracle {
+        ChatRun storage run = chatRuns[runId];
+        require(
+            keccak256(
+                abi.encodePacked(run.messages[run.messagesCount - 1].role)
+            ) == keccak256(abi.encodePacked("user")),
+            "No message to respond to"
+        );
+
+        Message memory newMessage;
+        newMessage.content = response;
+        newMessage.role = "assistant";
+        run.messages.push(newMessage);
+        run.messagesCount++;
     }
 }
