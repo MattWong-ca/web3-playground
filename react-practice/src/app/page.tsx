@@ -21,6 +21,13 @@ export default function Home() {
     setAnswer(inputValue);
   }
 
+  const [posts, setPosts] = useState('');
+  const getPosts = async () => {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const movies = await response.json();
+    setPosts(movies[0].body);
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center p-24">
       <div>This is a star rating component: </div>
@@ -44,6 +51,13 @@ export default function Home() {
         <div>
           Your answer is: {answer}
         </div>)}
+      <div>Simple get posts API: </div>
+      <div onClick={getPosts}>
+        Click button
+      </div>
+      {posts && (
+        <div>{posts}</div>
+      )}
     </div>
   );
 }
