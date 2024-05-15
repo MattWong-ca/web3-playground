@@ -28,6 +28,8 @@ export default function Home() {
     setPosts(movies[0].body);
   }
 
+  const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+  const alive = ['A', 'L', 'I', 'V', 'E'];
   return (
     <div className="flex min-h-screen flex-col items-center p-24">
       <div>This is a star rating component: </div>
@@ -52,12 +54,29 @@ export default function Home() {
           Your answer is: {answer}
         </div>)}
       <div>Simple get posts API: </div>
-      <div onClick={getPosts}>
+      <button onClick={getPosts}>
         Click button
-      </div>
+      </button>
       {posts && (
         <div>{posts}</div>
       )}
+      <br></br>
+      <div>Simple Hangman</div>
+      <div className="flex">
+        {
+          alphabet.map((index) => {
+            return <div className="px-2" key={index}>{index}</div>;
+          })
+        }
+      </div>
+      <br></br>
+      <div className="flex">
+        {
+          alive.map((index) => {
+            return <div className="px-2" key={index}>{index}</div>;
+          })
+        }
+      </div>
     </div>
   );
 }
