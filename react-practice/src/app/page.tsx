@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { StarIcon } from "@heroicons/react/20/solid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [isHoverYellow, setHoverYellow] = useState(0);
@@ -30,6 +30,25 @@ export default function Home() {
 
   const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
   const alive = ['A', 'L', 'I', 'V', 'E'];
+
+  const word = 'hangman';
+
+  const [dynamicAlphabet, setAlphabet] = useState(alphabet);
+  const [dynamicAlive, setAlive] = useState(alive);
+
+  const handleLetterSelect = (index: string) => {
+    const updatedAlphabet = dynamicAlphabet.filter(letter => letter !== index);
+    setAlphabet(updatedAlphabet);
+
+    if (word.split('').includes(index)) {
+      console.log(index)
+    } else {
+      dynamicAlive.splice(0, -1);
+      const updatedAlive = dynamicAlive.slice(0, -1);
+      setAlive(updatedAlive)
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center p-24">
       <div>This is a star rating component: </div>
@@ -64,15 +83,15 @@ export default function Home() {
       <div>Simple Hangman</div>
       <div className="flex">
         {
-          alphabet.map((index) => {
-            return <div className="px-2" key={index}>{index}</div>;
+          dynamicAlphabet.map((index) => {
+            return <div onClick={() => handleLetterSelect(index)} className="px-2" key={index}>{index}</div>;
           })
         }
       </div>
       <br></br>
       <div className="flex">
         {
-          alive.map((index) => {
+          dynamicAlive.map((index) => {
             return <div className="px-2" key={index}>{index}</div>;
           })
         }
