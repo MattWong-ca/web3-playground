@@ -33,22 +33,9 @@ export default function Home() {
 
   const word = 'hangman';
 
-  let placeholder: string[] = [];
-  for (let i = 0; i < word.length; i++) {
-    placeholder.push('-')
-    placeholder.push(' ')
-  }
-
-  // let another: string[] = [];
-  // let g: string[] = [];
-  // const [ga, setG] = useState<string[]>(placeholder);
-  // const show = word.split('');
-  
-  // const underlines: string[] = [];
-  // for (let i = 0; i < word.length; i++) {
-  //   underlines.push('_');
-  //   underlines.push(' ');
-  // }
+  const [correctGuesses, setCorrectGuesses] = useState<string[]>([]);
+  const maskedWord = word.split('').map(letter => 
+    correctGuesses.includes(letter) ? letter : "_").join(" ");
 
   const [dynamicAlphabet, setAlphabet] = useState(alphabet);
   const [dynamicAlive, setAlive] = useState(alive);
@@ -56,29 +43,15 @@ export default function Home() {
   const handleLetterSelect = (index: string) => {
     const updatedAlphabet = dynamicAlphabet.filter(letter => letter !== index);
     setAlphabet(updatedAlphabet);
-    // another.push(index)
-    // console.log(another)
 
     if (word.split('').includes(index)) {
       console.log(index)
+      setCorrectGuesses([...correctGuesses, index])
     } else {
       dynamicAlive.splice(0, -1);
       const updatedAlive = dynamicAlive.slice(0, -1);
       setAlive(updatedAlive)
     }
-
-    // for (let i = 0; i < show.length; i++) {
-    //   if ( another.includes(show[i]) ) {
-    //     g.push(show[i])
-    //   } else {
-    //     g.push('_')
-    //   }
-    //   g.push(' ')
-      
-    // }
-    // setG(g)
-    // console.log('g', g);
-    // console.log('ga', ga)
   }
 
   return (
@@ -129,7 +102,7 @@ export default function Home() {
         }
       </div>
       <br></br>
-      {/* <div>{ga}</div> */}
+      <div>{maskedWord}</div>
     </div>
   );
 }
