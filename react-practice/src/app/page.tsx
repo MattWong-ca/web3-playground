@@ -34,8 +34,9 @@ export default function Home() {
   const word = 'hangman';
 
   const [correctGuesses, setCorrectGuesses] = useState<string[]>([]);
-  const maskedWord = word.split('').map(letter => 
+  const maskedWord = word.split('').map(letter =>
     correctGuesses.includes(letter) ? letter : "_").join(" ");
+  const [hasLost, setHasLost] = useState(false);
 
   const [dynamicAlphabet, setAlphabet] = useState(alphabet);
   const [dynamicAlive, setAlive] = useState(alive);
@@ -51,6 +52,9 @@ export default function Home() {
       dynamicAlive.splice(0, -1);
       const updatedAlive = dynamicAlive.slice(0, -1);
       setAlive(updatedAlive)
+    }
+    if (dynamicAlive.length === 1) {
+      setHasLost(true)
     }
   }
 
@@ -103,6 +107,9 @@ export default function Home() {
       </div>
       <br></br>
       <div>{maskedWord}</div>
+      <br></br>
+        {!maskedWord.includes("_") && <p>You won!</p>}
+        {hasLost && <div>You lost!</div>}
     </div>
   );
 }
