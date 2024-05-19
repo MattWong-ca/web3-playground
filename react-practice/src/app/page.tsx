@@ -104,6 +104,9 @@ export default function Home() {
     setCurrentPage(prev => Math.min(prev + 1, totalPages))
   }
 
+  const tabs: string[] = ['Events', 'Showcase', 'Faucet', 'Packs', 'Guides'];
+  const [selectedTab, setSelectedTab] = useState<string | null>(null);
+
   return (
     <div className="flex min-h-screen flex-col items-center p-24">
       <div>This is a star rating component: </div>
@@ -173,6 +176,18 @@ export default function Home() {
         <button onClick={nextPage} disabled={currentPage === totalPages}>Next</button>
       </div>
       {`${currentPage} of ${totalPages}`}
+      <br></br>
+      <br></br>
+      <div>Tabs Example</div>
+      <div className="flex">
+        {
+          tabs.map( (tab, index) => {
+            return (
+              <div onClick={() => setSelectedTab(tab)} key={index} className={`${selectedTab === tab && 'bg-blue-500'} mx-2`}>{tab}</div>
+            )
+          })
+        }
+      </div>
     </div>
   );
 }
