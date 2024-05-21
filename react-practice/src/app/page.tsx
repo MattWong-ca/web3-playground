@@ -107,6 +107,8 @@ export default function Home() {
   const tabs: string[] = ['Events', 'Showcase', 'Faucet', 'Packs', 'Guides'];
   const [selectedTab, setSelectedTab] = useState<string | null>(null);
 
+  const [name, setName] = useState('');
+
   return (
     <div className="flex min-h-screen flex-col items-center p-24">
       <div>This is a star rating component: </div>
@@ -188,6 +190,17 @@ export default function Home() {
           })
         }
       </div>
+      <br></br>
+      <div>Another Form</div>
+      <form>
+        <div>Name: </div>
+        <input className="border border-black" value={name} onChange={(event) => setName(event?.target.value)}></input>
+        <div>Why you applying?</div>
+        <textarea className="border border-black"></textarea>
+        <div>Did you read this?</div>
+        <input type="radio" value="yes"></input>
+        <label>Yes</label>
+      </form>
     </div>
   );
 }
