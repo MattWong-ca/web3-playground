@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
+import Accordion from "../../components/Accordion";
 
 interface Card {
   title: string;
@@ -109,6 +110,36 @@ export default function Home() {
 
   const [name, setName] = useState('');
 
+  const data = [
+    {
+      title: 'Item 1',
+      children: [
+        {
+          title: 'Subitem 1.1',
+          children: [
+            {
+              title: 'Subitem 1.1.1',
+            },
+            {
+              title: 'Subitem 1.1.2',
+            },
+          ],
+        },
+        {
+          title: 'Subitem 1.2',
+        },
+      ],
+    },
+    {
+      title: 'Item 2',
+      children: [
+        {
+          title: 'Subitem 2.1',
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="flex min-h-screen flex-col items-center p-24">
       <div>This is a star rating component: </div>
@@ -201,6 +232,9 @@ export default function Home() {
         <input type="radio" value="yes"></input>
         <label>Yes</label>
       </form>
+      <div>
+      <Accordion data={data} />
+      </div>
     </div>
   );
 }
