@@ -91,11 +91,11 @@ export default function Home() {
   const itemsPerPage = 10;
   const totalPages = Math.ceil(initialCards.length / itemsPerPage);
 
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setCards(initialCards.slice(startIndex, endIndex));
-  }, [initialCards, currentPage]);
+  // useEffect(() => {
+  //   const startIndex = (currentPage - 1) * itemsPerPage;
+  //   const endIndex = startIndex + itemsPerPage;
+  //   setCards(initialCards.slice(startIndex, endIndex));
+  // }, [initialCards, currentPage]);
 
   const backPage = () => {
     setCurrentPage(prev => Math.max(prev - 1, 1))
@@ -233,7 +233,9 @@ export default function Home() {
         <label>Yes</label>
       </form>
       <div>
+      <div className="w-full">
       <Accordion data={data} />
+      </div>
       </div>
     </div>
   );
