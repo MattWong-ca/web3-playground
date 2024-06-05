@@ -1,12 +1,12 @@
 import '../src/app/globals.css';
 import React, { useState } from 'react';
 
-enum KortexDocumentStatus {
+export enum KortexDocumentStatus {
     DRAFT = "Draft",
     KORENOTE = "Korenote",
 }
 
-interface KortexDocument {
+export interface KortexDocument {
     title: string;
     uuid: string;
     content: string;
@@ -17,7 +17,7 @@ interface KortexDocument {
     parent: string | null;
 }
 
-const sampleDocuments: KortexDocument[] = [
+export const sampleDocuments: KortexDocument[] = [
     {
         title: "Romeo and Juliet",
         uuid: "1",
@@ -99,10 +99,10 @@ const DocumentList: React.FC<{ documents: (KortexDocument & { children?: KortexD
                 <div key={doc.uuid}>
                     <div onClick={handleClick} style={{ marginTop: '4px', border: '1px solid #8B8B8B', borderRadius: '4px', display: 'flex', justifyContent: 'space-between' }} key={doc.uuid}>
                         <div>
-                            {doc.title} 
+                            {doc.title}&nbsp;&nbsp;&nbsp;&nbsp;(UUID: {doc.uuid})
                         </div>
                         <div>
-                        (UUID: {doc.uuid})
+                            {showChildren && doc.children ? '-' : (doc.children && doc.children.length > 0 ? '+' : '')}
                         </div>
                     </div>
                     {showChildren && doc.children && doc.children.length > 0 && (
