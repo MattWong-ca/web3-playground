@@ -1,0 +1,18 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjQ0NjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgyODJkNWYzQmZjNzY5YTI3NjAxNDg3NzhBNzMzNDI5YmEzQWVmMjU2In0",
+    "payload": "eyJkb21haW4iOiJmcmFtZXMtdjIuYnVpbGRlcnMuZ2FyZGVuIn0",
+    "signature": "MHg3NTkxNmI5OWM5YTQ0ZDQ0OWE0NDk5M2VjYmVmMmU0YTQzYWU3Y2RjNTM3MTljODlkMDA4NDYxZGY3MjNhZjQ5NzI3YmZlNWIwNTExNmMxMGVmYzc2YzMxNDIxNWI5NDUyMTZlN2E4OTczNDU5ZTk4MjExMTU3ZGZhNjA5MGZjMDFi"
+  },
+  "frame": {
+    "version": "1",
+    "name": "Frame V2 Starter",
+    "iconUrl": "https://frames-v2.builders.garden/images/icon.png",
+    "homeUrl": "https://frames-v2.builders.garden",
+    "imageUrl": "https://frames-v2.builders.garden/images/feed.png",
+    "buttonTitle": "Press Me",
+    "splashImageUrl": "https://frames-v2.builders.garden/images/splash.png",
+    "splashBackgroundColor": "#ffffff",
+    "webhookUrl": "https://frames-v2.builders.garden/api/webhook"
+  }
+}
