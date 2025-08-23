@@ -9,7 +9,7 @@ export default function Home() {
             Gelato Sponsored Transactions
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Experience gasless transactions powered by Gelato's Gas Tank. 
+            Experience gasless transactions powered by Gelato&apos;s Gas Tank. 
             Interact with smart contracts without needing ETH for gas fees!
           </p>
         </div>
