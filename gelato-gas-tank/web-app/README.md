@@ -34,48 +34,39 @@ NEXT_PUBLIC_SEPOLIA_RPC_URL=https://rpc.sepolia.org
 
 ### 4. Deploy the Smart Contract
 
-You have two options for deploying the contract:
+You have two options for deploying the Counter contract:
 
 #### Option A: Using Remix IDE (Recommended for beginners)
 
-1. Copy the contract code from `contracts/SimpleCounter.sol`
+1. Copy the contract code from `../contracts/contracts/Counter.sol`
 2. Go to [remix.ethereum.org](https://remix.ethereum.org/)
 3. Create a new file and paste the contract code
-4. Compile the contract (Solidity version 0.8.19+)
+4. Compile the contract (Solidity version 0.8.28)
 5. Deploy to Sepolia testnet using MetaMask
 6. Copy the deployed contract address to your `.env.local`
 
-#### Option B: Using Hardhat (Advanced)
+#### Option B: Using the existing Hardhat setup (Advanced)
 
-1. Install Hardhat and dependencies:
+The project already has a Hardhat setup in the `../contracts/` directory:
+
+1. Navigate to the contracts directory:
    ```bash
-   npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox dotenv
+   cd ../contracts
    ```
 
-2. Create `hardhat.config.js`:
-   ```javascript
-   require("@nomicfoundation/hardhat-toolbox");
-   require("dotenv").config();
-
-   module.exports = {
-     solidity: "0.8.19",
-     networks: {
-       sepolia: {
-         url: process.env.SEPOLIA_RPC_URL || "https://rpc.sepolia.org",
-         accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-       },
-     },
-   };
+2. Install dependencies:
+   ```bash
+   npm install
    ```
 
-3. Add your private key to `.env.local`:
+3. Add your private key to `.env`:
    ```bash
    PRIVATE_KEY=your_private_key_here
    ```
 
-4. Deploy:
+4. Deploy to Sepolia:
    ```bash
-   npx hardhat run scripts/deploy.js --network sepolia
+   npx hardhat ignition deploy ./ignition/modules/Counter.ts --network sepolia
    ```
 
 ### 5. Run the Application
@@ -92,7 +83,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the demo.
 
 The current implementation uses simple sponsored calls without ERC2771:
 
-1. **Contract**: A simple counter contract with `increment()`, `decrement()`, and `reset()` functions
+1. **Contract**: A simple counter contract with `inc()` and `incBy(uint)` functions
 2. **Frontend**: React components that encode function calls and send them to Gelato
 3. **Gelato Relay**: Processes the sponsored transaction and pays for gas
 
@@ -101,23 +92,23 @@ The current implementation uses simple sponsored calls without ERC2771:
 - **`src/lib/gelato.ts`**: Gelato SDK integration and sponsored transaction functions
 - **`src/lib/constants.ts`**: Configuration and contract ABI
 - **`src/components/sponsored-transaction-demo.tsx`**: Main demo component
-- **`contracts/SimpleCounter.sol`**: Simple smart contract for testing
+- **`../contracts/contracts/Counter.sol`**: Simple counter contract for testing
 
 ### Transaction Flow
 
-1. User clicks a button (e.g., "Sponsored Increment")
-2. Frontend encodes the function call using Viem
+1. User clicks a button (e.g., "Sponsored +1" or "Sponsored +5")
+2. Frontend encodes the function call (`inc()` or `incBy(5)`) using Viem
 3. Creates a `SponsoredCallRequest` with the encoded data
 4. Sends the request to Gelato via `relay.sponsoredCall()`
 5. Gelato executes the transaction and pays for gas
 6. Frontend polls for transaction status
-7. Contract state updates are reflected in the UI
+7. Counter value updates are reflected in the UI
 
 ## 🎯 Testing the Implementation
 
 1. **Connect Wallet**: Click "Connect Wallet" and connect MetaMask to Sepolia
 2. **Check Configuration**: Ensure all green checkmarks in the Configuration Status
-3. **Test Transactions**: Try the sponsored increment, decrement, and reset buttons
+3. **Test Transactions**: Try the sponsored increment buttons (+1 and custom amount)
 4. **Monitor Status**: Watch the transaction status updates in real-time
 5. **Verify Results**: See the counters update after successful transactions
 

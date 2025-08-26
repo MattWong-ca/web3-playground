@@ -1,7 +1,7 @@
 import { GelatoRelay, SponsoredCallRequest } from '@gelatonetwork/relay-sdk-viem'
 import { encodeFunctionData, type Address, type Hex } from 'viem'
 import { sepolia } from 'viem/chains'
-import { GELATO_RELAY_API_KEY, CONTRACT_ADDRESS, SIMPLE_COUNTER_ABI } from './constants'
+import { GELATO_RELAY_API_KEY, CONTRACT_ADDRESS, COUNTER_ABI } from './constants'
 
 // Initialize Gelato Relay
 const relay = new GelatoRelay()
@@ -13,7 +13,7 @@ export type SponsoredTxResult = {
 }
 
 /**
- * Send a sponsored transaction to increment the counter
+ * Send a sponsored transaction to increment the counter by 1
  */
 export async function sponsoredIncrement(): Promise<SponsoredTxResult> {
   try {
@@ -27,8 +27,8 @@ export async function sponsoredIncrement(): Promise<SponsoredTxResult> {
 
     // Encode the function call
     const data = encodeFunctionData({
-      abi: SIMPLE_COUNTER_ABI,
-      functionName: 'increment',
+      abi: COUNTER_ABI,
+      functionName: 'inc',
     })
 
     // Create the sponsored call request
@@ -38,19 +38,19 @@ export async function sponsoredIncrement(): Promise<SponsoredTxResult> {
       data: data as Hex,
     }
 
-    console.log('Sending sponsored transaction...', request)
+    console.log('Sending sponsored increment transaction...', request)
 
     // Send the sponsored call
     const response = await relay.sponsoredCall(request, GELATO_RELAY_API_KEY)
 
-    console.log('Sponsored transaction response:', response)
+    console.log('Sponsored increment response:', response)
 
     return {
       taskId: response.taskId,
       success: true,
     }
   } catch (error) {
-    console.error('Error sending sponsored transaction:', error)
+    console.error('Error sending sponsored increment:', error)
     return {
       taskId: '',
       success: false,
@@ -60,9 +60,9 @@ export async function sponsoredIncrement(): Promise<SponsoredTxResult> {
 }
 
 /**
- * Send a sponsored transaction to decrement the counter
+ * Send a sponsored transaction to increment the counter by a specific amount
  */
-export async function sponsoredDecrement(): Promise<SponsoredTxResult> {
+export async function sponsoredIncrementBy(amount: number): Promise<SponsoredTxResult> {
   try {
     if (!GELATO_RELAY_API_KEY) {
       throw new Error('Gelato API key not configured')
@@ -72,10 +72,15 @@ export async function sponsoredDecrement(): Promise<SponsoredTxResult> {
       throw new Error('Contract address not configured')
     }
 
+    if (amount <= 0) {
+      throw new Error('Increment amount must be positive')
+    }
+
     // Encode the function call
     const data = encodeFunctionData({
-      abi: SIMPLE_COUNTER_ABI,
-      functionName: 'decrement',
+      abi: COUNTER_ABI,
+      functionName: 'incBy',
+      args: [BigInt(amount)],
     })
 
     // Create the sponsored call request
@@ -85,66 +90,19 @@ export async function sponsoredDecrement(): Promise<SponsoredTxResult> {
       data: data as Hex,
     }
 
-    console.log('Sending sponsored decrement transaction...', request)
+    console.log(`Sending sponsored incrementBy(${amount}) transaction...`, request)
 
     // Send the sponsored call
     const response = await relay.sponsoredCall(request, GELATO_RELAY_API_KEY)
 
-    console.log('Sponsored decrement response:', response)
+    console.log('Sponsored incrementBy response:', response)
 
     return {
       taskId: response.taskId,
       success: true,
     }
   } catch (error) {
-    console.error('Error sending sponsored decrement:', error)
-    return {
-      taskId: '',
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    }
-  }
-}
-
-/**
- * Send a sponsored transaction to reset the counter
- */
-export async function sponsoredReset(): Promise<SponsoredTxResult> {
-  try {
-    if (!GELATO_RELAY_API_KEY) {
-      throw new Error('Gelato API key not configured')
-    }
-
-    if (!CONTRACT_ADDRESS) {
-      throw new Error('Contract address not configured')
-    }
-
-    // Encode the function call
-    const data = encodeFunctionData({
-      abi: SIMPLE_COUNTER_ABI,
-      functionName: 'reset',
-    })
-
-    // Create the sponsored call request
-    const request: SponsoredCallRequest = {
-      chainId: BigInt(sepolia.id),
-      target: CONTRACT_ADDRESS as Address,
-      data: data as Hex,
-    }
-
-    console.log('Sending sponsored reset transaction...', request)
-
-    // Send the sponsored call
-    const response = await relay.sponsoredCall(request, GELATO_RELAY_API_KEY)
-
-    console.log('Sponsored reset response:', response)
-
-    return {
-      taskId: response.taskId,
-      success: true,
-    }
-  } catch (error) {
-    console.error('Error sending sponsored reset:', error)
+    console.error('Error sending sponsored incrementBy:', error)
     return {
       taskId: '',
       success: false,

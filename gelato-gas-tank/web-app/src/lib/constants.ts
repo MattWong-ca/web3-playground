@@ -7,70 +7,31 @@ export const SEPOLIA_RPC_URL = process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || 'https
 // From: https://docs.gelato.network/developer-services/relay/supported-networks
 export const GELATO_TRUSTED_FORWARDER_SEPOLIA = '0xd8253782c45a12053594b9deB72d8e8aB2Fca54c';
 
-// Contract ABI - will be updated after deployment
-export const SIMPLE_COUNTER_ABI = [
+// Counter contract ABI
+export const COUNTER_ABI = [
   {
     "inputs": [],
-    "name": "increment",
+    "name": "inc",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "decrement",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "reset",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "counter",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserCounter",
-    "outputs": [
-      {
         "internalType": "uint256",
-        "name": "",
+        "name": "by",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "incBy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "userCounters",
+    "inputs": [],
+    "name": "x",
     "outputs": [
       {
         "internalType": "uint256",
@@ -85,25 +46,13 @@ export const SIMPLE_COUNTER_ABI = [
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "newValue",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "globalCounter",
+        "name": "by",
         "type": "uint256"
       }
     ],
-    "name": "CounterIncremented",
+    "name": "Increment",
     "type": "event"
   }
 ] as const;

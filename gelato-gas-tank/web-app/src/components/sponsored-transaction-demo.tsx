@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi'
 import { injected } from 'wagmi/connectors'
-import { sponsoredIncrement, sponsoredDecrement, sponsoredReset, getTaskStatus } from '~/lib/gelato'
-import { CONTRACT_ADDRESS, SIMPLE_COUNTER_ABI, GELATO_RELAY_API_KEY } from '~/lib/constants'
+import { sponsoredIncrement, sponsoredIncrementBy, getTaskStatus } from '~/lib/gelato'
+import { CONTRACT_ADDRESS, COUNTER_ABI, GELATO_RELAY_API_KEY } from '~/lib/constants'
 
 export function SponsoredTransactionDemo() {
   const { address, isConnected } = useAccount()
@@ -15,24 +15,15 @@ export function SponsoredTransactionDemo() {
   const [lastTaskId, setLastTaskId] = useState<string>('')
   const [taskStatus, setTaskStatus] = useState<string>('')
   const [error, setError] = useState<string>('')
+  const [incrementAmount, setIncrementAmount] = useState<number>(5)
 
   // Read contract data
-  const { data: globalCounter, refetch: refetchGlobalCounter } = useReadContract({
+  const { data: counter, refetch: refetchCounter } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
-    abi: SIMPLE_COUNTER_ABI,
-    functionName: 'counter',
+    abi: COUNTER_ABI,
+    functionName: 'x',
     query: {
       enabled: !!CONTRACT_ADDRESS && isConnected,
-    },
-  })
-
-  const { data: userCounter, refetch: refetchUserCounter } = useReadContract({
-    address: CONTRACT_ADDRESS as `0x${string}`,
-    abi: SIMPLE_COUNTER_ABI,
-    functionName: 'getUserCounter',
-    args: address ? [address] : undefined,
-    query: {
-      enabled: !!CONTRACT_ADDRESS && !!address && isConnected,
     },
   })
 
@@ -48,8 +39,7 @@ export function SponsoredTransactionDemo() {
         // If task is successful, refresh contract data
         if (status.taskState === 'ExecSuccess') {
           setTimeout(() => {
-            refetchGlobalCounter()
-            refetchUserCounter()
+            refetchCounter()
           }, 2000)
         }
       }
@@ -59,9 +49,9 @@ export function SponsoredTransactionDemo() {
     pollStatus() // Initial call
 
     return () => clearInterval(interval)
-  }, [lastTaskId, refetchGlobalCounter, refetchUserCounter])
+  }, [lastTaskId, refetchCounter])
 
-  const handleSponsoredTransaction = async (action: 'increment' | 'decrement' | 'reset') => {
+  const handleSponsoredTransaction = async (action: 'increment' | 'incrementBy') => {
     if (!isConnected) {
       setError('Please connect your wallet first')
       return
@@ -87,11 +77,8 @@ export function SponsoredTransactionDemo() {
         case 'increment':
           result = await sponsoredIncrement()
           break
-        case 'decrement':
-          result = await sponsoredDecrement()
-          break
-        case 'reset':
-          result = await sponsoredReset()
+        case 'incrementBy':
+          result = await sponsoredIncrementBy(incrementAmount)
           break
       }
 
@@ -183,50 +170,46 @@ export function SponsoredTransactionDemo() {
           Counter Contract
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
-              Global Counter
-            </h4>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
-              {globalCounter?.toString() || '0'}
-            </p>
-          </div>
-          
-          <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
-              Your Counter
-            </h4>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
-              {userCounter?.toString() || '0'}
-            </p>
-          </div>
+        <div className="text-center p-6 bg-gray-50 dark:bg-gray-700 rounded-lg mb-6">
+          <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+            Current Counter Value
+          </h4>
+          <p className="text-4xl font-bold text-gray-900 dark:text-white">
+            {counter?.toString() || '0'}
+          </p>
         </div>
 
-        <div className="flex flex-wrap gap-4 justify-center">
-          <button
-            onClick={() => handleSponsoredTransaction('increment')}
-            disabled={isLoading || !isConnected}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isLoading ? 'Processing...' : '🚀 Sponsored Increment'}
-          </button>
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-4 justify-center">
+            <button
+              onClick={() => handleSponsoredTransaction('increment')}
+              disabled={isLoading || !isConnected}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLoading ? 'Processing...' : '🚀 Sponsored +1'}
+            </button>
+          </div>
           
-          <button
-            onClick={() => handleSponsoredTransaction('decrement')}
-            disabled={isLoading || !isConnected}
-            className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isLoading ? 'Processing...' : '🚀 Sponsored Decrement'}
-          </button>
-          
-          <button
-            onClick={() => handleSponsoredTransaction('reset')}
-            disabled={isLoading || !isConnected}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isLoading ? 'Processing...' : '🚀 Sponsored Reset'}
-          </button>
+          <div className="flex flex-wrap gap-4 justify-center items-center">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Increment by:
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="100"
+              value={incrementAmount}
+              onChange={(e) => setIncrementAmount(Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+            <button
+              onClick={() => handleSponsoredTransaction('incrementBy')}
+              disabled={isLoading || !isConnected}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLoading ? 'Processing...' : `🚀 Sponsored +${incrementAmount}`}
+            </button>
+          </div>
         </div>
       </div>
 
