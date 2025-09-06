@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "devDependencies": {
+    "@gelatonetwork/relay-context": "^4.1.1",
     "@nomicfoundation/hardhat-ignition": "^3.0.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^5.0.0",
     "@types/node": "^22.18.0",

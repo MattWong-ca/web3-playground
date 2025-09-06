@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi'
 import { injected } from 'wagmi/connectors'
-import { sponsoredIncrement, sponsoredIncrementBy, getTaskStatus } from '~/lib/gelato'
-import { CONTRACT_ADDRESS, COUNTER_ABI, GELATO_RELAY_API_KEY } from '~/lib/constants'
+import { sponsoredMintToSelf, sponsoredBatchMint, getTaskStatus } from '~/lib/gelato'
+import { CONTRACT_ADDRESS, SIMPLE_MINT_ABI, GELATO_RELAY_API_KEY } from '~/lib/constants'
 
 export function SponsoredTransactionDemo() {
   const { address, isConnected } = useAccount()
@@ -15,15 +15,48 @@ export function SponsoredTransactionDemo() {
   const [lastTaskId, setLastTaskId] = useState<string>('')
   const [taskStatus, setTaskStatus] = useState<string>('')
   const [error, setError] = useState<string>('')
-  const [incrementAmount, setIncrementAmount] = useState<number>(5)
+  const [mintQuantity, setMintQuantity] = useState<number>(2)
 
-  // Read contract data
-  const { data: counter, refetch: refetchCounter } = useReadContract({
+  // Read contract data - total supply
+  const { data: totalSupply, refetch: refetchTotalSupply } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
-    abi: COUNTER_ABI,
-    functionName: 'x',
+    abi: SIMPLE_MINT_ABI,
+    functionName: 'totalSupply',
     query: {
-      enabled: !!CONTRACT_ADDRESS && isConnected,
+      enabled: !!CONTRACT_ADDRESS,
+    },
+  })
+
+  // Read user's balance
+  const { data: userBalance, refetch: refetchUserBalance } = useReadContract({
+    address: CONTRACT_ADDRESS as `0x${string}`,
+    abi: SIMPLE_MINT_ABI,
+    functionName: 'balanceOf',
+    args: [address as `0x${string}`],
+    query: {
+      enabled: !!CONTRACT_ADDRESS && !!address && isConnected,
+    },
+  })
+
+  // Read user's minted count
+  const { refetch: refetchUserMintedCount } = useReadContract({
+    address: CONTRACT_ADDRESS as `0x${string}`,
+    abi: SIMPLE_MINT_ABI,
+    functionName: 'mintedBy',
+    args: [address as `0x${string}`],
+    query: {
+      enabled: !!CONTRACT_ADDRESS && !!address && isConnected,
+    },
+  })
+
+  // Read remaining mints for user
+  const { data: remainingMints, refetch: refetchRemainingMints } = useReadContract({
+    address: CONTRACT_ADDRESS as `0x${string}`,
+    abi: SIMPLE_MINT_ABI,
+    functionName: 'remainingMintsFor',
+    args: [address as `0x${string}`],
+    query: {
+      enabled: !!CONTRACT_ADDRESS && !!address && isConnected,
     },
   })
 
@@ -39,7 +72,10 @@ export function SponsoredTransactionDemo() {
         // If task is successful, refresh contract data
         if (status.taskState === 'ExecSuccess') {
           setTimeout(() => {
-            refetchCounter()
+            refetchTotalSupply()
+            refetchUserBalance()
+            refetchUserMintedCount()
+            refetchRemainingMints()
           }, 2000)
         }
       }
@@ -49,9 +85,9 @@ export function SponsoredTransactionDemo() {
     pollStatus() // Initial call
 
     return () => clearInterval(interval)
-  }, [lastTaskId, refetchCounter])
+  }, [lastTaskId, refetchTotalSupply, refetchUserBalance, refetchUserMintedCount, refetchRemainingMints])
 
-  const handleSponsoredTransaction = async (action: 'increment' | 'incrementBy') => {
+  const handleSponsoredTransaction = async (action: 'mintToSelf' | 'batchMint') => {
     if (!isConnected) {
       setError('Please connect your wallet first')
       return
@@ -74,11 +110,11 @@ export function SponsoredTransactionDemo() {
     try {
       let result
       switch (action) {
-        case 'increment':
-          result = await sponsoredIncrement()
+        case 'mintToSelf':
+          result = await sponsoredMintToSelf()
           break
-        case 'incrementBy':
-          result = await sponsoredIncrementBy(incrementAmount)
+        case 'batchMint':
+          result = await sponsoredBatchMint(mintQuantity)
           break
       }
 
@@ -167,47 +203,67 @@ export function SponsoredTransactionDemo() {
       {/* Contract Interaction */}
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Counter Contract
+          SimpleMint Contract (ERC2771)
         </h3>
         
-        <div className="text-center p-6 bg-gray-50 dark:bg-gray-700 rounded-lg mb-6">
-          <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
-            Current Counter Value
-          </h4>
-          <p className="text-4xl font-bold text-gray-900 dark:text-white">
-            {counter?.toString() || '0'}
-          </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+              Total Supply
+            </h4>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {totalSupply?.toString() || '0'} / 1000
+            </p>
+          </div>
+          
+          <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+              Your Balance
+            </h4>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {userBalance?.toString() || '0'}
+            </p>
+          </div>
+          
+          <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+              Remaining Mints
+            </h4>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {remainingMints?.toString() || '0'} / 10
+            </p>
+          </div>
         </div>
 
         <div className="space-y-4">
           <div className="flex flex-wrap gap-4 justify-center">
             <button
-              onClick={() => handleSponsoredTransaction('increment')}
-              disabled={isLoading || !isConnected}
+              onClick={() => handleSponsoredTransaction('mintToSelf')}
+              disabled={isLoading || !isConnected || (remainingMints !== undefined && remainingMints <= BigInt(0))}
               className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? 'Processing...' : '🚀 Sponsored +1'}
+              {isLoading ? 'Processing...' : '🎁 Sponsored Mint (1 Token)'}
             </button>
           </div>
           
           <div className="flex flex-wrap gap-4 justify-center items-center">
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Increment by:
+              Batch mint quantity:
             </label>
             <input
               type="number"
               min="1"
-              max="100"
-              value={incrementAmount}
-              onChange={(e) => setIncrementAmount(Math.max(1, parseInt(e.target.value) || 1))}
+              max="5"
+              value={mintQuantity}
+              onChange={(e) => setMintQuantity(Math.max(1, Math.min(5, parseInt(e.target.value) || 1)))}
               className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
             <button
-              onClick={() => handleSponsoredTransaction('incrementBy')}
-              disabled={isLoading || !isConnected}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              onClick={() => handleSponsoredTransaction('batchMint')}
+              disabled={isLoading || !isConnected || (remainingMints !== undefined && remainingMints < BigInt(mintQuantity))}
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? 'Processing...' : `🚀 Sponsored +${incrementAmount}`}
+              {isLoading ? 'Processing...' : `🎁 Sponsored Batch Mint (${mintQuantity})`}
             </button>
           </div>
         </div>
