@@ -1,0 +1,44 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-5e0104c4db1179025900bee0567996650661cea2",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/SimpleTest.sol": "project/contracts/SimpleTest.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": [
+        "project/:@gelatonetwork/relay-context/=npm/@gelatonetwork/relay-context@4.1.1/"
+      ]
+    },
+    "sources": {
+      "npm/@gelatonetwork/relay-context@4.1.1/contracts/vendor/ERC2771Context.sol": {
+        "content": "// SPDX-License-Identifier: MIT\n// OpenZeppelin Contracts (last updated v4.7.0) (metatx/ERC2771Context.sol)\n\npragma solidity ^0.8.1;\n\n/**\n * @dev Context variant with ERC2771 support.\n */\n// based on https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/metatx/ERC2771Context.sol\nabstract contract ERC2771Context {\n    address private immutable _trustedForwarder;\n\n    constructor(address trustedForwarder) {\n        _trustedForwarder = trustedForwarder;\n    }\n\n    function isTrustedForwarder(address forwarder)\n        public\n        view\n        virtual\n        returns (bool)\n    {\n        return forwarder == _trustedForwarder;\n    }\n\n    function _msgSender() internal view virtual returns (address sender) {\n        if (isTrustedForwarder(msg.sender)) {\n            // The assembly code is more direct than the Solidity version using `abi.decode`.\n            /// @solidity memory-safe-assembly\n            assembly {\n                sender := shr(96, calldataload(sub(calldatasize(), 20)))\n            }\n        } else {\n            return msg.sender;\n        }\n    }\n\n    function _msgData() internal view virtual returns (bytes calldata) {\n        if (isTrustedForwarder(msg.sender)) {\n            return msg.data[:msg.data.length - 20];\n        } else {\n            return msg.data;\n        }\n    }\n}\n"
+      },
+      "project/contracts/SimpleTest.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.28;\n\nimport \"@gelatonetwork/relay-context/contracts/vendor/ERC2771Context.sol\";\n\n/**\n * @title SimpleTest\n * @dev A minimal contract to test ERC2771 sponsored transactions\n */\ncontract SimpleTest is ERC2771Context {\n    // Events\n    event ButtonClicked(address indexed clicker, uint256 timestamp);\n    \n    // State variables\n    uint256 public clickCount;\n    mapping(address => uint256) public userClickCount;\n    address public lastClicker;\n    uint256 public lastClickTime;\n    \n    /**\n     * @dev Constructor sets the trusted forwarder for ERC2771\n     * @param trustedForwarder The address of Gelato's trusted forwarder\n     */\n    constructor(address trustedForwarder) ERC2771Context(trustedForwarder) {}\n    \n    /**\n     * @dev Simple function to test sponsored transactions\n     * Anyone can call this, and it tracks who called it\n     */\n    function clickButton() external {\n        address clicker = _msgSender(); // This should return the original user, not the relayer\n        \n        clickCount++;\n        userClickCount[clicker]++;\n        lastClicker = clicker;\n        lastClickTime = block.timestamp;\n        \n        emit ButtonClicked(clicker, block.timestamp);\n    }\n    \n    /**\n     * @dev Get the current clicker (should return original user, not relayer)\n     */\n    function getCurrentClicker() external view returns (address) {\n        return _msgSender();\n    }\n    \n    /**\n     * @dev Get click stats for a user\n     */\n    function getUserStats(address user) external view returns (uint256 clicks, bool isLastClicker) {\n        return (userClickCount[user], lastClicker == user);\n    }\n    \n    /**\n     * @dev Override _msgSender to use ERC2771Context implementation\n     */\n    function _msgSender() internal view override returns (address sender) {\n        return ERC2771Context._msgSender();\n    }\n    \n    /**\n     * @dev Override _msgData to use ERC2771Context implementation\n     */\n    function _msgData() internal view override returns (bytes calldata) {\n        return ERC2771Context._msgData();\n    }\n}\n"
+      }
+    }
+  }
+}

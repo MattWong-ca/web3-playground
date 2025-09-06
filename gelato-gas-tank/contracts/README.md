@@ -4,6 +4,8 @@ Deployed address: 0xE28510d37FF1df6067e6a44623095E47531C150c
 
 NFT address: 0x3592c351c4Ce0c4D43bfAd1a9B6C023E5a3439C8
 
+Simple sponsored: 0xB72B212112072F195858599bd6DbCD27204225F2
+
 This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
 
 To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
