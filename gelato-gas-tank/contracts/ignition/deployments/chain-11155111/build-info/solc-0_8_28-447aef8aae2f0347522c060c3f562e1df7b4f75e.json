@@ -1,0 +1,44 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-447aef8aae2f0347522c060c3f562e1df7b4f75e",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/TestCounter2.sol": "project/contracts/TestCounter2.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": [
+        "project/:@gelatonetwork/relay-context/=npm/@gelatonetwork/relay-context@4.1.1/"
+      ]
+    },
+    "sources": {
+      "npm/@gelatonetwork/relay-context@4.1.1/contracts/vendor/ERC2771Context.sol": {
+        "content": "// SPDX-License-Identifier: MIT\n// OpenZeppelin Contracts (last updated v4.7.0) (metatx/ERC2771Context.sol)\n\npragma solidity ^0.8.1;\n\n/**\n * @dev Context variant with ERC2771 support.\n */\n// based on https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/metatx/ERC2771Context.sol\nabstract contract ERC2771Context {\n    address private immutable _trustedForwarder;\n\n    constructor(address trustedForwarder) {\n        _trustedForwarder = trustedForwarder;\n    }\n\n    function isTrustedForwarder(address forwarder)\n        public\n        view\n        virtual\n        returns (bool)\n    {\n        return forwarder == _trustedForwarder;\n    }\n\n    function _msgSender() internal view virtual returns (address sender) {\n        if (isTrustedForwarder(msg.sender)) {\n            // The assembly code is more direct than the Solidity version using `abi.decode`.\n            /// @solidity memory-safe-assembly\n            assembly {\n                sender := shr(96, calldataload(sub(calldatasize(), 20)))\n            }\n        } else {\n            return msg.sender;\n        }\n    }\n\n    function _msgData() internal view virtual returns (bytes calldata) {\n        if (isTrustedForwarder(msg.sender)) {\n            return msg.data[:msg.data.length - 20];\n        } else {\n            return msg.data;\n        }\n    }\n}\n"
+      },
+      "project/contracts/TestCounter2.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.28;\n\nimport {\n    ERC2771Context\n} from \"@gelatonetwork/relay-context/contracts/vendor/ERC2771Context.sol\";\n\n// Importing ERC2771Context gives access to:\n// 1. An immutable trusted forwarder address\n// 2. function isTrustedForwarder \n//    to verify an input address matches the trustedForwarder address\n// 3. function _msgSender()\n//    which decodes the user's address from the calldata\n//    _msgSender() can now be used to refer to user safely\n//    instead of msg.sender (which is Gelato Relay in this case).\n// 4. function _msgData()\n//    which decodes the function signature from the calldata\ncontract TestCounter2 is ERC2771Context {\n    // Here we have a mapping that maps a counter to an address\n    mapping(address => uint256) public contextCounter;\n\n    event IncrementCounter(address _msgSender);\n\n    // ERC2771Context: setting the immutable trustedForwarder variable\n    constructor(address trustedForwarder) ERC2771Context(trustedForwarder) {}\n    \n    // `incrementContext` is the target function to call\n    // This function increments a counter variable which is \n    // mapped to every _msgSender(), the address of the user.\n    // This way each user off-chain has their own counter \n    // variable on-chain.\n    function increment() external {\n        // Remember that with the context shift of relaying,\n        // where we would use `msg.sender` before, \n        // this now refers to Gelato Relay's address, \n        // and to find the address of the user, \n        // which has been verified using a signature,\n        // please use _msgSender()!\n\n        // If this contract was not not called by the \n        // trusted forwarder, _msgSender() will simply return \n        // the value of msg.sender instead.\n        \n        // Incrementing the counter mapped to the _msgSender!\n        contextCounter[_msgSender()]++;\n        \n        // Emitting an event for testing purposes\n        emit IncrementCounter(_msgSender());\n    }\n}"
+      }
+    }
+  }
+}

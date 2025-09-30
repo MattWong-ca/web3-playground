@@ -1,5 +1,3 @@
 {
-  "CounterModule#Counter": "0xE28510d37FF1df6067e6a44623095E47531C150c",
-  "SimpleMintModule#SimpleMint": "0x3592c351c4Ce0c4D43bfAd1a9B6C023E5a3439C8",
-  "SimpleTestModule#SimpleTest": "0xB72B212112072F195858599bd6DbCD27204225F2"
+  "TestCounter2Module#TestCounter2": "0x305812a91D1982396289004A132bA9666eaF204a"
 }
