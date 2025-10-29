@@ -174,7 +174,7 @@ export function Globe({ globeConfig, data }: WorldProps) {
       .pointColor((e) => (e as { color: string }).color)
       .pointsMerge(true)
       .pointAltitude(0.0)
-      .pointRadius(2)
+      .pointRadius(defaultProps.pointSize)
 
     globeRef.current
       .ringsData([])
@@ -241,7 +241,7 @@ export function World(props: WorldProps) {
   return (
     <Canvas camera={{ position: [0, 0, cameraZ], fov: 50, near: 180, far: 1800 }} gl={{ antialias: true }}>
       <WebGLRendererConfig />
-      <fog attach="fog" args={[0xffffff, 400, 2000]} />
+      {/* <fog attach="fog" args={[0xffffff, 400, 2000]} /> */}
       <ambientLight color={globeConfig.ambientLight} intensity={0.6} />
       <directionalLight color={globeConfig.directionalLeftLight} position={[-400, 100, 400]} />
       <directionalLight color={globeConfig.directionalTopLight} position={[-200, 500, 200]} />
@@ -252,7 +252,7 @@ export function World(props: WorldProps) {
         enableZoom={false}
         minDistance={cameraZ}
         maxDistance={cameraZ}
-        autoRotateSpeed={1}
+        autoRotateSpeed={0.8}
         autoRotate={true}
         minPolarAngle={Math.PI / 3.5}
         maxPolarAngle={Math.PI - Math.PI / 3}
