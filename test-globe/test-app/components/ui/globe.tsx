@@ -53,6 +53,9 @@ export type GlobeConfig = {
   }
   autoRotate?: boolean
   autoRotateSpeed?: number
+  minPolarAngle?: number // Minimum polar angle (vertical tilt) - lower = more top-down view
+  maxPolarAngle?: number // Maximum polar angle (vertical tilt) - higher = more bottom-up view
+  initialPolarAngle?: number // Initial polar angle (0 = top view, π/2 = side view, π = bottom view)
 }
 
 interface WorldProps {
@@ -236,8 +239,50 @@ export function WebGLRendererConfig() {
   return null
 }
 
+// Component to set initial polar angle
+function PolarAngleInitializer({ 
+  initialPolarAngle,
+  controlsRef 
+}: { 
+  initialPolarAngle?: number
+  controlsRef?: React.RefObject<any>
+}) {
+  const { camera } = useThree()
+  
+  useEffect(() => {
+    if (initialPolarAngle !== undefined) {
+      // Use a small delay to ensure OrbitControls is initialized
+      const timer = setTimeout(() => {
+        const polarAngle = initialPolarAngle
+        const azimuthAngle = 0 // Start at 0 degrees horizontally
+        
+        // Convert spherical to cartesian coordinates
+        const radius = cameraZ
+        const x = radius * Math.sin(polarAngle) * Math.cos(azimuthAngle)
+        const y = radius * Math.cos(polarAngle)
+        const z = radius * Math.sin(polarAngle) * Math.sin(azimuthAngle)
+        
+        camera.position.set(x, y, z)
+        camera.lookAt(0, 0, 0)
+        camera.updateProjectionMatrix()
+        
+        // Update OrbitControls if available
+        if (controlsRef?.current) {
+          controlsRef.current.update()
+        }
+      }, 100)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [initialPolarAngle, camera, controlsRef])
+  
+  return null
+}
+
 export function World(props: WorldProps) {
   const { globeConfig } = props
+  const controlsRef = useRef<any>(null)
+  
   return (
     <Canvas camera={{ position: [0, 0, cameraZ], fov: 50, near: 180, far: 1800 }} gl={{ antialias: true }}>
       <WebGLRendererConfig />
@@ -247,15 +292,17 @@ export function World(props: WorldProps) {
       <directionalLight color={globeConfig.directionalTopLight} position={[-200, 500, 200]} />
       <pointLight color={globeConfig.pointLight} position={[-200, 500, 200]} intensity={0.8} />
       <Globe {...props} />
+      <PolarAngleInitializer initialPolarAngle={12} controlsRef={controlsRef} />
       <OrbitControls
+        ref={controlsRef}
         enablePan={false}
         enableZoom={false}
         minDistance={cameraZ}
         maxDistance={cameraZ}
-        autoRotateSpeed={0.8}
-        autoRotate={true}
-        minPolarAngle={Math.PI / 3.5}
-        maxPolarAngle={Math.PI - Math.PI / 3}
+        autoRotateSpeed={8}
+        autoRotate={globeConfig.autoRotate ?? true}
+        minPolarAngle={globeConfig.minPolarAngle ?? Math.PI / 3.5}
+        maxPolarAngle={globeConfig.maxPolarAngle ?? Math.PI - Math.PI / 3}
       />
     </Canvas>
   )
